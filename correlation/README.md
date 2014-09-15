@@ -1,5 +1,7 @@
-Python wrapper for C++ using SWIG
-=================================
+Computing a correlation matrix
+===============================
+a Python wrapper for C++ using SWIG
+===================================
 
 Features of python/C++/SWIG demonstrated
 * Numpy wrapping
