@@ -46,7 +46,7 @@ eig_vecs = npzfile['eig_vecs']
 # how you'd use it 
 ##########################################
 
-# mu = np.zeros(nrow*ncol) #np.mean([ p['hk'] for p in observed_points ]) * np.ones(len(C))  
+# mu = np.zeros(nrow*ncol) # could be the mean of any data you have
 # scale = 1.
 # # evaluate KLE with given modes
 # # other parameters (other than modes) are mu, scale, eig_vecs, eig_vals (or really sigma and L on which they depend)
