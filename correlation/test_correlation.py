@@ -71,9 +71,6 @@ test_outs = np.zeros((nrow*ncol, 10), 'd')
 for i in range(np.shape(test_vecs)[1]):
 	test_outs[:,i] = C.dot(test_vecs[:,i])
 
-out_vec = np.empty((nrow*ncol), 'd')
-
-
 
 
 t0 = time.time()
@@ -82,6 +79,7 @@ C_matrix.make_C(nrow, ncol, Lx, Ly)
 
 t1 = time.time()
 
+out_vec = np.empty((nrow*ncol), 'd')
 for i in range(np.shape(test_vecs)[1]):
 	in_vec = test_vecs[:,i]
 	C_matrix.av(nrow*ncol, in_vec, out_vec) # remember swig adds dim arg
@@ -103,6 +101,7 @@ C_matrix.set_dims(nrow, ncol, Lx, Ly)
 
 t1 = time.time()
 
+out_vec = np.empty((nrow*ncol), 'd')
 for i in range(np.shape(test_vecs)[1]):
 	in_vec = test_vecs[:,i]
 	C_matrix.av_no_C(nrow*ncol, in_vec, out_vec)
