@@ -1,7 +1,7 @@
 Computing the eigen values and vectors of a correlation matrix for a Karhunen Loève Expansion (KLE)
 ===============================
-a Python wrapper for C++ using SWIG
-===================================
+an example of a Python wrapper for C++ using SWIG
+------------------
 
 Features of python/C++/SWIG demonstrated
 ------------------
