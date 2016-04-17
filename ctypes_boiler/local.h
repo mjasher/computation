@@ -1,0 +1,1 @@
+double sin_degrees (double x);
