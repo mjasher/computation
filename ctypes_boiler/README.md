@@ -1,0 +1,1 @@
+Python performance can be dramatically improved by writing bottleneck functions in C. (Ctypes)[https://docs.python.org/2/library/ctypes.html] allows C functions to be called from python. Here are some simple examples.
