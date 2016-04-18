@@ -1,91 +1,68 @@
+import numpy
+import subprocess
+
+import ctypes as C
+# from ctypes import c_char_p, c_long, c_float, C.c_double, byref, CDLL, C.POINTER
+
+
 """
-preprocess, compile, and link
+Pre-process, compile, and link
+Fortran can be used similarly 
+    - `gfortran -shared -fPIC  -g -o local.so local.f90`
+    - add _ to end of function names, `local.sin_x_`
+    - use `[numpy.ctypeslib.ndpointer(dtype=numpy.float64, shape=(n,), flags='F_CONTIGUOUS'), x.astype(dtype=numpy.float64, order="F")]`
 """
 
-import subprocess
-# compile_cmd = 'gfortran -shared -fPIC  -g -o local.so local.f90'
-compile_cmd = 'gcc -shared -fPIC  -g -o local.so local.c'
+compile_cmd = 'gcc -shared -fPIC  -g -o local.so local.c'  
 subprocess.check_call(compile_cmd.split())
 
+local = C.CDLL('./local.so')
 
-from ctypes import c_char_p, c_long, c_float, c_double, byref, CDLL, POINTER
-local = CDLL('./local.so')
+"""
+simplest example, args and ret by value
+"""
 
-# test.prnt_.argtypes = [c_char_p, c_long]
+local.sin_degrees.argtypes = [C.c_double]
+local.sin_degrees.restype = C.c_double
+x = 4.56
+sin_x = local.sin_degrees(C.c_double(x))
+assert abs(sin_x - numpy.sin(x * numpy.pi / 180.)) < 1e-10
+print 'c:        ', sin_x
+print 'numpy:    ', numpy.sin(x * numpy.pi / 180.)
 
-# local.sin_degrees.argtypes = [POINTER(c_double)]
-# local.sin_degrees.restype = POINTER(c_double)
-# sin_x = local.sin_degrees(byref(x))
+"""
+args and ret by reference
+"""
 
-
-local.sin_degrees.argtypes = [c_double]
-local.sin_degrees.restype = c_double
-
-x = c_double(4.56)
-sin_x = local.sin_degrees(x)
-print ""
-print sin_x
-
-
-# test.qref_.argtypes = [POINTER(c_float), c_float, c_long, c_long, c_long]
-# test.qref_.restype = c_float
-
-# import numpy 
-
-# x = 4
-# y = 3
-# z = 2
-# a = numpy.random.random((x,y,z))
-# print a
-# print "SUM", numpy.sum(a)
-
-# a_c_types = (c_float*(x*y*z))()
-# a_c_types[:] = a.flatten()
-# tot = c_float()
+local.sin_degrees_p.argtypes = [C.POINTER(C.c_double)]  # redundant?
+local.sin_degrees_p.restype = C.POINTER(C.c_double)
+sin_x_p = local.sin_degrees_p(C.byref(C.c_double(x)))
+assert abs(sin_x_p[0] - numpy.sin(x * numpy.pi / 180.)) < 1e-10
+print 'c pointer:', sin_x
 
 
-# test.qref_( byref(a_c_types), byref(tot), byref(c_long(z)), byref(c_long(y)), byref(c_long(x)) )
-# print "SUM", tot
+"""
+numpy array args
 
-# # c =[0.501212060,8.64220131E-03,0.589656591,0.670281947,0.714529157,0.222474501,0.289629757,0.858183444,2.30114143E-02,0.602795005,0.404510617,0.784162641,0.283252627,6.63019419E-02,0.695632756,0.633914351,3.02934125E-02,0.368286878,4.63037528E-02,0.342094421,0.849391580,0.408671349,0.758220494,0.166015476]
+http://scipy.github.io/old-wiki/pages/Cookbook/Ctypes
+"""
+ncol = 4
+nrow = 3
+rand_array = 10.0 * numpy.random.random((ncol, nrow))
 
+sum_types, sum_args = zip(*[
+                        [numpy.ctypeslib.ndpointer(dtype=numpy.float64, shape=rand_array.shape), 
+                        rand_array.astype(dtype=numpy.float64)],
+                        [C.c_int, C.c_int(ncol)], 
+                        [C.c_int, C.c_int(nrow)], 
+                        # [C.C_FUNC, C.C_FUNC(f)]
+                        ])
 
+local.sum.argtypes = sum_types
+local.sum.restype = C.c_double
 
-# import numpy as np
+c_sum = local.sum(* sum_args)
 
+print "(1,2) = ", rand_array[1,2]
+assert abs(c_sum - numpy.sum(rand_array)) < 1e-10
 
-# ncol = 4
-# nrow = 3
-# nlay = 1
-# ibound = np.ones((ncol,nrow,nlay), dtype=np.long, order="F")
-# strt = 10.0*np.ones((ncol,nrow,nlay), dtype=np.float64, order="F")
-# hnoflo = -9999.0
-# name = '../tutorial2/tutorial2'
-
-# strt[:,:1,:] = 5.
-
-# # np.float64 corresponds with REAL(8)
-# # np.float32 corresponds with REAL
-# # x.ctypes.data_as(ctypes.POINTER(ctypes.c_long))
-
-# test.halfhalf_.argtypes = [
-#                             POINTER(c_float), 
-#                             POINTER(c_long), POINTER(c_long), POINTER(c_long), 
-#                             np.ctypeslib.ndpointer(dtype=np.float64,
-#                                                 # ndim=3,
-#                                                  shape=(ncol,nrow,nlay),
-#                                                  flags='F_CONTIGUOUS'),
-#                             np.ctypeslib.ndpointer(dtype=np.long,
-#                                                 # ndim=3,
-#                                                  shape=(ncol,nrow,nlay),
-#                                                  flags='F_CONTIGUOUS'),
-#                             c_char_p, c_long
-#                             ]
-
-# test.halfhalf_(
-#     c_float(hnoflo), 
-#     c_long(ncol), c_long(nrow), c_long(nlay), 
-#     strt,
-#     ibound,
-#     name, len(name)
-#     )
