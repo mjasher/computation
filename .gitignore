@@ -3,6 +3,8 @@ correlation_wrap.cxx
 **/build
 
 
+*.so.dSYM/
+
 # Compiled source #
 ###################
 *.com
