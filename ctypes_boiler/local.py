@@ -2,8 +2,6 @@ import numpy
 import subprocess
 
 import ctypes as C
-# from ctypes import c_char_p, c_long, c_float, C.c_double, byref, CDLL, C.POINTER
-
 
 """
 Pre-process, compile, and link
