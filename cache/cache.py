@@ -97,15 +97,15 @@ def money(key_func=lambda x: str(hash(json.dumps(x))),
             key = key_func(*args, **kwargs)
             
             if not os.path.exists(local_cache_directory):
-                os.mkdir(local_cache_directory)
+                os.makedirs(local_cache_directory)
 
             cache_file = os.path.join(local_cache_directory, key)
 
             # if os.path.exists(cache_file) and not force_refresh:
             if os.path.exists(cache_file):
                 with open(cache_file, "rb") as file:
-                    y = pickle.load(file)
                     # y = json.load(file)
+                    y = pickle.load(file)
                 return y
             else:
                 y = func(*args, **kwargs) 
