@@ -31,14 +31,14 @@ Custom json encoder allows sevearal data types to be saved as json
 """
 class DateNumpyEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return obj.date().isoformat()
+        if isinstance(obj, numpy.ndarray):
+            return {'type': 'numpy.ndarray', 'data': obj.tolist()}
+        elif isinstance(obj, datetime.datetime):
+            return {'type': 'datetime.datetime', 'data': obj.strftime("%Y-%m-%dT%H:%M:%S.%fZ")}
         elif isinstance(obj, datetime.date):
-            return obj.isoformat()
+            return {'type': 'datetime.date', 'data': obj.strftime("%Y-%m-%d")}
         elif isinstance(obj, datetime.timedelta):
             return (datetime.datetime.min + obj).date().isoformat()
-        elif isinstance(obj, numpy.ndarray):
-            return obj.tolist()
         elif isinstance(obj, pandas.DataFrame):
             try:
                 return obj.to_json()
@@ -46,6 +46,16 @@ class DateNumpyEncoder(json.JSONEncoder):
                 return obj.as_matrix().tolist()
         else:
             return super(DateNumpyEncoder, self).default(obj)
+
+
+def  DateNumpyDecoder(dct):
+    if isinstance(dct, dict) and 'type' in dct and dct['type'] == 'numpy.ndarray':
+        return numpy.array(dct['data'])
+    elif isinstance(dct, dict) and 'type' in dct and dct['type'] == 'datetime.datetime':
+        return datetime.datetime.strptime(dct['data'], "%Y-%m-%dT%H:%M:%S.%fZ")
+    elif isinstance(dct, dict) and 'type' in dct and dct['type'] == 'datetime.date':
+        return datetime.datetime.strptime(dct['data'], "%Y-%m-%d").date()
+    return dct
 
 """
 Some useful key functions
@@ -147,13 +157,13 @@ if __name__ == '__main__':
 
     t0 = time.time()
     ys_cached = [cached_slow_function(x, 5, 10) for x in xs] 
-    print time.time()-t0, " sec. for ", len(xs), " samples with cache" 
+    print time.time()-t0, " sec. for ", len(xs), " samples filling cache" 
 
     assert numpy.allclose(ys, ys_cached)
 
     t0 = time.time()
     ys = [cached_slow_function(x, 5, 10) for x in xs] 
-    print time.time()-t0, " sec. for ", len(xs), " samples with decorator" 
+    print time.time()-t0, " sec. for ", len(xs), " samples with cache" 
 
     # clean up demo
     shutil.rmtree(cache_directory)
