@@ -1,6 +1,6 @@
 import os
 import simplejson as json  # import json
-import cPickle as pickle  # import pickle
+# import cPickle as pickle  # import pickle
 from functools import wraps
 import numpy
 import datetime
@@ -32,7 +32,7 @@ Custom json encoder allows sevearal data types to be saved as json
 class DateNumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, numpy.ndarray):
-            return {'type': 'numpy.ndarray', 'data': obj.tolist()}
+            return {'type': 'numpy.ndarray', 'data_type': str(obj.dtype), 'data': obj.tolist()}
         elif isinstance(obj, datetime.datetime):
             return {'type': 'datetime.datetime', 'data': obj.strftime("%Y-%m-%dT%H:%M:%S.%fZ")}
         elif isinstance(obj, datetime.date):
@@ -50,7 +50,7 @@ class DateNumpyEncoder(json.JSONEncoder):
 
 def  DateNumpyDecoder(dct):
     if isinstance(dct, dict) and 'type' in dct and dct['type'] == 'numpy.ndarray':
-        return numpy.array(dct['data'])
+        return numpy.array(dct['data']).astype(getattr(numpy, dct['data_type']))
     elif isinstance(dct, dict) and 'type' in dct and dct['type'] == 'datetime.datetime':
         return datetime.datetime.strptime(dct['data'], "%Y-%m-%dT%H:%M:%S.%fZ")
     elif isinstance(dct, dict) and 'type' in dct and dct['type'] == 'datetime.date':
@@ -114,14 +114,14 @@ def money(key_func=lambda x: str(hash(json.dumps(x))),
             # if os.path.exists(cache_file) and not force_refresh:
             if os.path.exists(cache_file):
                 with open(cache_file, "rb") as file:
-                    # y = json.load(file)
-                    y = pickle.load(file)
+                    y = json.load(file)
+                    # y = pickle.load(file)
                 return y
             else:
                 y = func(*args, **kwargs) 
                 with open(cache_file, "wb") as file:
-                    # json.dump(y, file, cls=DateNumpyEncoder, ignore_nan=True)
-                    pickle.dump(y, file, protocol=pickle.HIGHEST_PROTOCOL)
+                    json.dump(y, file, cls=DateNumpyEncoder, ignore_nan=True)
+                    # pickle.dump(y, file, protocol=pickle.HIGHEST_PROTOCOL)
                 return y
 
         return f_with_cache
