@@ -114,7 +114,7 @@ def money(key_func=lambda x: str(hash(json.dumps(x))),
             # if os.path.exists(cache_file) and not force_refresh:
             if os.path.exists(cache_file):
                 with open(cache_file, "rb") as file:
-                    y = json.load(file)
+                    y = json.load(file, object_hook=DateNumpyDecoder)
                     # y = pickle.load(file)
                 return y
             else:
