@@ -85,8 +85,7 @@ A decorator to cache a some_function(args) by saving each run in <cache_dir>/som
 """
 
 
-def money(key_func=lambda x: str(hash(json.dumps(x))),
-                   cache_directory=None):
+def money(key_func=join_key, cache_directory=None):
     
     def decorator(func):
         if cache_directory is None:
