@@ -86,7 +86,7 @@ A decorator to cache a some_function(args) by saving each run in <cache_dir>/som
 
 
 def money(key_func=join_key, cache_directory=None):
-    
+
     def decorator(func):
         if cache_directory is None:
             local_cache_directory = os.path.join(os.environ.get('CACHE_DIR', '/tmp'), 'farmlogs-light-' +func.__name__)
@@ -104,7 +104,7 @@ def money(key_func=join_key, cache_directory=None):
             #     force_refresh = False
 
             key = key_func(*args, **kwargs)
-            
+
             if not os.path.exists(local_cache_directory):
                 os.makedirs(local_cache_directory)
 
@@ -117,7 +117,7 @@ def money(key_func=join_key, cache_directory=None):
                     # y = pickle.load(file)
                 return y
             else:
-                y = func(*args, **kwargs) 
+                y = func(*args, **kwargs)
                 with open(cache_file, "wb") as file:
                     json.dump(y, file, cls=DateNumpyEncoder, ignore_nan=True)
                     # pickle.dump(y, file, protocol=pickle.HIGHEST_PROTOCOL)
@@ -127,15 +127,35 @@ def money(key_func=join_key, cache_directory=None):
 
     return decorator
 
+
+"""
+stupid profiler
+"""
+import time
+def time_func():
+    def decorator(func):
+        @wraps(func)
+        def timed_func(*args, **kwargs):
+            t0 = time.time()
+            y = func(*args, **kwargs)
+            print "%s took %.2f seconds" % (func.__name__, time.time() - t0)
+            return y
+        return timed_func
+
+    return decorator
+
+
+
+
 """
 demo
 """
 
 if __name__ == '__main__':
-    
+
     import time
     import shutil
-    
+
     def slow_function(x, a, b):
         time.sleep(0.003)
         return 2*x
@@ -145,24 +165,24 @@ if __name__ == '__main__':
     xs = rng.normal(loc=0.0, scale=1.0, size=(1000,1))
 
     t0 = time.time()
-    ys = [slow_function(x, 5, 10) for x in xs] 
-    print time.time()-t0, " sec. for ", len(xs), " samples *without* cache" 
+    ys = [slow_function(x, 5, 10) for x in xs]
+    print time.time()-t0, " sec. for ", len(xs), " samples *without* cache"
 
-    cache_directory = os.path.join(os.environ.get('CACHE_DIR', '/tmp'), 'test_func') 
+    cache_directory = os.path.join(os.environ.get('CACHE_DIR', '/tmp'), 'test_func')
     @money(key_func=numpy_key, cache_directory=cache_directory)
     def cached_slow_function(x, a, b):
         time.sleep(0.003)
         return 2 * x
 
     t0 = time.time()
-    ys_cached = [cached_slow_function(x, 5, 10) for x in xs] 
-    print time.time()-t0, " sec. for ", len(xs), " samples filling cache" 
+    ys_cached = [cached_slow_function(x, 5, 10) for x in xs]
+    print time.time()-t0, " sec. for ", len(xs), " samples filling cache"
 
     assert numpy.allclose(ys, ys_cached)
 
     t0 = time.time()
-    ys = [cached_slow_function(x, 5, 10) for x in xs] 
-    print time.time()-t0, " sec. for ", len(xs), " samples with cache" 
+    ys = [cached_slow_function(x, 5, 10) for x in xs]
+    print time.time()-t0, " sec. for ", len(xs), " samples with cache"
 
     # clean up demo
     shutil.rmtree(cache_directory)
