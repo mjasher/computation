@@ -89,7 +89,7 @@ def money(key_func=join_key, cache_directory=None):
 
     def decorator(func):
         if cache_directory is None:
-            local_cache_directory = os.path.join(os.environ.get('CACHE_DIR', '/tmp'), 'farmlogs-light-' +func.__name__)
+            local_cache_directory = os.path.join(os.environ.get('CACHE_DIR', '/tmp'), 'cache-' + func.__name__)
         else:
             local_cache_directory = cache_directory
 
