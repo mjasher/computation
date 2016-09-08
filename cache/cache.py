@@ -4,7 +4,6 @@ import simplejson as json  # import json
 from functools import wraps
 import numpy
 import datetime
-import pandas
 
 """
 
@@ -39,11 +38,6 @@ class DateNumpyEncoder(json.JSONEncoder):
             return {'type': 'datetime.date', 'data': obj.strftime("%Y-%m-%d")}
         elif isinstance(obj, datetime.timedelta):
             return (datetime.datetime.min + obj).date().isoformat()
-        elif isinstance(obj, pandas.DataFrame):
-            try:
-                return obj.to_json()
-            except:
-                return obj.as_matrix().tolist()
         else:
             return super(DateNumpyEncoder, self).default(obj)
 
