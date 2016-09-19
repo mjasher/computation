@@ -48,6 +48,10 @@ ncol = 4
 nrow = 3
 rand_array = 10.0 * numpy.random.random((ncol, nrow))
 
+local.sum.restype = C.c_double
+
+# complex way
+"""
 sum_types, sum_args = zip(*[
                         [numpy.ctypeslib.ndpointer(dtype=numpy.float64, shape=rand_array.shape), 
                         rand_array.astype(dtype=numpy.float64)],
@@ -57,10 +61,14 @@ sum_types, sum_args = zip(*[
                         ])
 
 local.sum.argtypes = sum_types
-local.sum.restype = C.c_double
-
 c_sum = local.sum(* sum_args)
+"""
+
+# easy way
+c_sum = local.sum(rand_array.ctypes.data_as(C.POINTER(C.c_double)), C.c_int(ncol), C.c_int(nrow))
 
 print "(1,2) = ", rand_array[1,2]
 assert abs(c_sum - numpy.sum(rand_array)) < 1e-10
+
+
 
