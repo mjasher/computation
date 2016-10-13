@@ -11,6 +11,8 @@ Taken from
 
 */
 
+
+// output can be read with eg. numpy.frombuffer(base64.decodestring(request.json['array']), dtype=numpy.float32)
 function encode(input) {
      var buffer = new Uint8Array(input.buffer);
      var binary = '';
@@ -66,6 +68,7 @@ function intb64(chr) {
     : 0
 }
 
+// input can be made eg. base64.b64encode(some_aray.astype(dtype=numpy.float32))
 function decode(input, output) {
   input = input.replace(/[^A-Za-z0-9\+\/]/g, "")
 
