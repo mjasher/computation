@@ -4,6 +4,11 @@ computation
 I enjoy maths, python, and fast code.
 Here are some methods like minded people may find useful.
 
+[b64_array_js_py](b64_array_js_py)
+-----------
+Demo of how to transfer a float32 array javascript <--> python as a base64 encoded byte string.
+
+
 [cache](cache)
 -----------
 A succinct and fairly flexible way to cache a given python function.
