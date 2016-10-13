@@ -31,28 +31,28 @@ wrapping function
 
 fem1d_heat_steady_so = C.CDLL(base+'.so')
 
-def fem1d_heat_steady(	n, 					# number of mesh points
-						a, b, ua, ub, 		# u(a)=ua on left boundary, u(b)=ub on right boundary
-						k, 					# conductivity function 
-						f, 					# forcing function
-						x 					# mesh points
-					 ):	
+def fem1d_heat_steady(	n, 				# number of mesh points
+			a, b, ua, ub, 			# u(a)=ua on left boundary, u(b)=ub on right boundary
+			k, 				# conductivity function 
+			f, 				# forcing function
+			x 				# mesh points
+	):	
 
 	C_FUNC = C.CFUNCTYPE(C.c_double, C.POINTER(C.c_double))
 
 	u = numpy.zeros((n), dtype=numpy.float64, order="F")
 
 	fem1d_heat_steady_types, fem1d_heat_steady_args = zip(*[
-	 										[C.POINTER(C.c_int), C.c_int(n)], 
-											[C.POINTER(C.c_double), C.c_double(a)], 
-											[C.POINTER(C.c_double), C.c_double(b)], 
-											[C.POINTER(C.c_double), C.c_double(ua)], 
-											[C.POINTER(C.c_double), C.c_double(ub)], 
-											[C_FUNC, C_FUNC(k)], 
-											[C_FUNC, C_FUNC(f)], 
-											[numpy.ctypeslib.ndpointer(dtype=numpy.float64, shape=(n,), flags='F_CONTIGUOUS'), x.astype(dtype=numpy.float64, order="F")],
-											[numpy.ctypeslib.ndpointer(dtype=numpy.float64, shape=(n,), flags='F_CONTIGUOUS'), u],
-										])
+	 							[C.POINTER(C.c_int), C.c_int(n)], 
+								[C.POINTER(C.c_double), C.c_double(a)], 
+								[C.POINTER(C.c_double), C.c_double(b)], 
+								[C.POINTER(C.c_double), C.c_double(ua)], 
+								[C.POINTER(C.c_double), C.c_double(ub)], 
+								[C_FUNC, C_FUNC(k)], 
+								[C_FUNC, C_FUNC(f)], 
+								[numpy.ctypeslib.ndpointer(dtype=numpy.float64, shape=(n,), flags='F_CONTIGUOUS'), x.astype(dtype=numpy.float64, order="F")],
+								[numpy.ctypeslib.ndpointer(dtype=numpy.float64, shape=(n,), flags='F_CONTIGUOUS'), u],
+	])
 
 	fem1d_heat_steady_so.fem1d_heat_steady_.argtypes = fem1d_heat_steady_types
 
