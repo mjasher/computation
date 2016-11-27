@@ -10,9 +10,10 @@ console.log(decode(encode(input_array), 'float32'));
 fetch('/multiply', {
         method: "POST",
         body: JSON.stringify({
-            "__array__": encode(input_array),
-            "dtype": "float32",
-            "shape": [input_array.length]
+            "type": "numpy.ndarray",
+            "data": encode(input_array),
+            "data_type": "float32",
+            "data_shape": [input_array.length]
         }),
         headers: new Headers({
             'Content-Type': 'application/json'
@@ -22,7 +23,7 @@ fetch('/multiply', {
         return response.json();
     })
     .then((data) => {
-        var twice_the_array = decode(data['twice_the_array']['__array__'], data['twice_the_array']['dtype']);
+        var twice_the_array = decode(data['twice_the_array']['data'], data['twice_the_array']['data_type']);
         document.querySelector('body').innerHTML = `Python says that twice [${input_array}] is [${twice_the_array}].`
         console.log(twice_the_array);
     });
